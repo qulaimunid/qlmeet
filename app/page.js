@@ -1,0 +1,8 @@
+'use client';
+import {useState} from 'react';
+import {LiveKitRoom,VideoConference,RoomAudioRenderer} from '@livekit/components-react';
+export default function Home(){
+ const [name,setName]=useState(''); const [room,setRoom]=useState('test-room'); const [conn,setConn]=useState(null); const [loading,setLoading]=useState(false); const [error,setError]=useState('');
+ async function join(e){e.preventDefault();setLoading(true);setError('');try{const r=await fetch('/api/token',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name,room})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Gagal membuat token');setConn(d)}catch(err){setError(err.message)}finally{setLoading(false)}}
+ if(conn)return <main className="meeting"><LiveKitRoom token={conn.token} serverUrl={conn.serverUrl} connect={true} video={true} audio={true} onDisconnected={()=>setConn(null)}><VideoConference/><RoomAudioRenderer/></LiveKitRoom></main>;
+ return <main className="home"><section className="card"><div className="badge">QL MEET • V0.0.1</div><h1>Masuk ruang meeting</h1><p>Prototype video meeting Qulaimun.id menggunakan LiveKit.</p><form onSubmit={join}><label>Nama</label><input value={name} onChange={e=>setName(e.target.value)} placeholder="Contoh: Adhitya" required/><label>Room</label><input value={room} onChange={e=>setRoom(e.target.value)} placeholder="Contoh: kelas-test" required/><button disabled={loading}>{loading?'Menghubungkan...':'Join Meeting'}</button>{error&&<div className="error">{error}</div>}</form><small>Buka room yang sama dari HP dan laptop untuk pengujian.</small></section></main>}
